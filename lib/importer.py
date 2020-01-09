@@ -606,7 +606,7 @@ def execImport(handle, options):
         log('importing {} items from {}'.format(mediaType, mediaProvider2str(mediaProvider)))
 
         # handle library sections
-        plexItems = []
+        items = []
         sectionsProgressTotal = len(librarySections)
         for sectionsProgress, librarySection in enumerate(librarySections):
             if xbmcmediaimport.shouldCancel(handle, sectionsProgress, sectionsProgressTotal):
@@ -618,32 +618,31 @@ def execImport(handle, options):
                 log('cannot import {} items from unknown library section {}'.format(mediaType, librarySection), xbmc.LOGWARNING)
                 continue
 
-            # get all matching items from the library section
-            try:
-                plexSectionItems = section.search(libtype=plexLibType)
-                plexItems.extend(plexSectionItems)
-            except plexapi.exceptions.BadRequest as err:
-                log('failed to retrieve {} items from {}: {}'.format(mediaType, mediaProvider2str(mediaProvider), err))
-                return
+            # get all matching items from the library section and turn them into ListItems
+            sectionProgress = 0
+            sectionProgressTotal = section.count(libtype=plexLibType)
+            while sectionProgress < sectionProgressTotal:
+                if xbmcmediaimport.shouldCancel(handle, sectionProgress, sectionProgressTotal):
+                    return
 
-        # parse all items
-        items = []
-        itemsProgressTotal = len(plexItems)
-        for itemsProgress, plexItem in enumerate(plexItems):
-            if xbmcmediaimport.shouldCancel(handle, itemsProgress, itemsProgressTotal):
-                return
+                maxresults = min(ITEM_REQUEST_LIMIT, sectionProgressTotal - sectionProgress)
 
-            try:
-                item = Api.toFileItem(plexServer, plexItem, mediaType, plexLibType)
-                if not item:
-                    continue
+                try:
+                    plexItems = section.search(libtype=plexLibType, maxresults=maxresults, startindex=sectionProgress)
+                except plexapi.exceptions.BadRequest as err:
+                    log('failed to retrieve {} items from {}: {}'.format(mediaType, mediaProvider2str(mediaProvider), err))
+                    return
 
-                items.append(item)
+                for plexItem in plexItems:
+                    if xbmcmediaimport.shouldCancel(handle, sectionProgress, sectionProgressTotal):
+                        return
+                    sectionProgress += 1
 
-            except plexapi.exceptions.BadRequest as err:
-                # Api.convertDateTimeToDbDateTime may return (404) not_found for orphaned items in the library
-                log('failed to retrieve item {} with key {} from {}: {}'.format(plexItem.title, plexItem.key, mediaProvider2str(mediaProvider), err))
-                continue
+                    item = Api.toFileItem(plexServer, plexItem, mediaType, plexLibType)
+                    if not item:
+                        continue
+
+                    items.append(item)
 
         if items:
             log('{} {} items imported from {}'.format(len(items), mediaType, mediaProvider2str(mediaProvider)))
