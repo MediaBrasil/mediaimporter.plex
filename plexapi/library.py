@@ -509,16 +509,7 @@ class LibrarySection(PlexObject):
             Raises:
                 :class:`plexapi.exceptions.BadRequest`: when applying unknown filter
         """
-        # cleanup the core arguments
-        args = {}
-        for category, value in kwargs.items():
-            args[category] = self._cleanSearchFilter(category, value, libtype)
-        if title is not None:
-            args['title'] = title
-        if sort is not None:
-            args['sort'] = self._cleanSearchSort(sort)
-        if libtype is not None:
-            args['type'] = utils.searchType(libtype)
+        args = self._prepareSearchArgs(title=title, sort=sort, libtype=libtype, **kwargs)
         # iterate over the results
         results, subresults = [], '_init'
         args['X-Plex-Container-Start'] = 0
@@ -529,6 +520,19 @@ class LibrarySection(PlexObject):
             results += subresults[:maxresults - len(results)]
             args['X-Plex-Container-Start'] += args['X-Plex-Container-Size']
         return results
+
+    def _prepareSearchArgs(self, title=None, sort=None, libtype=None, **kwargs):
+        # cleanup the core arguments
+        args = {}
+        for category, value in kwargs.items():
+            args[category] = self._cleanSearchFilter(category, value, libtype)
+        if title is not None:
+            args['title'] = title
+        if sort is not None:
+            args['sort'] = self._cleanSearchSort(sort)
+        if libtype is not None:
+            args['type'] = utils.searchType(libtype)
+        return args
 
     def _cleanSearchFilter(self, category, value, libtype=None):
         # check a few things before we begin
