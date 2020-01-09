@@ -427,11 +427,8 @@ class LibrarySection(PlexObject):
             Parameters:
                     sort (string): The sort string
         """
-        sortStr = ''
-        if sort is not None:
-            sortStr = '?sort=' + sort
-
-        key = '/library/sections/%s/all%s' % (self.key, sortStr)
+        args = self._prepareSearchArgs(sort=sort)
+        key = '/library/sections/%s/all%s' % (self.key, utils.joinArgs(args))
         return self.fetchItems(key, **kwargs)[0]
 
     def onDeck(self):
