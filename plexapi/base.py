@@ -140,11 +140,20 @@ class PlexObject(object):
         clsname = cls.__name__ if cls else 'None'
         raise NotFound('Unable to find elem: cls=%s, attrs=%s' % (clsname, kwargs))
 
-    def fetchItems(self, ekey, cls=None, **kwargs):
+    def fetchItems(self, ekey, cls=None, maxresults=-1, startindex=-1, **kwargs):
         """ Load the specified key to find and build all items with the specified tag
             and attrs. See :func:`~plexapi.base.PlexObject.fetchItem` for more details
             on how this is used.
         """
+        args = {}
+        if maxresults >= 0:
+            args['X-Plex-Container-Size'] = maxresults
+        if startindex >= 0 or maxresults >= 0:
+            args['X-Plex-Container-Start'] = max(0, startindex)
+        if args:
+            delim = '&' if '?' in ekey else '?'
+            ekey = '%s%s%s' % (ekey, delim, utils.joinArgs(args, leadingquestionmark=False))
+
         data = self._server.query(ekey)
         items = self.findItems(data, cls, ekey, **kwargs)
         librarySectionID = data.attrib.get('librarySectionID')
