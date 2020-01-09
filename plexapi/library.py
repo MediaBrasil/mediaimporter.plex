@@ -421,7 +421,7 @@ class LibrarySection(PlexObject):
         key = '/library/sections/%s/all%s' % (self.key, utils.joinArgs(args))
         return self.fetchItems(key, maxresults=0, **kwargs)[1]
 
-    def all(self, sort=None, **kwargs):
+    def all(self, sort=None, maxresults=-1, startindex=-1, **kwargs):
         """ Returns a list of media from this library section.
 
             Parameters:
@@ -429,7 +429,7 @@ class LibrarySection(PlexObject):
         """
         args = self._prepareSearchArgs(sort=sort)
         key = '/library/sections/%s/all%s' % (self.key, utils.joinArgs(args))
-        return self.fetchItems(key, **kwargs)[0]
+        return self.fetchItems(key, maxresults=maxresults, startindex=startindex, **kwargs)[0]
 
     def onDeck(self):
         """ Returns a list of media items on deck from this library section. """
@@ -505,7 +505,7 @@ class LibrarySection(PlexObject):
         key = '/library/sections/%s/%s%s' % (self.key, category, utils.joinArgs(args))
         return self.fetchItems(key, cls=FilterChoice)[0]
 
-    def search(self, title=None, sort=None, maxresults=-1, libtype=None, **kwargs):
+    def search(self, title=None, sort=None, maxresults=-1, libtype=None, startindex=-1, **kwargs):
         """ Search the library. If there are many results, they will be fetched from the server
             in batches of X_PLEX_CONTAINER_SIZE amounts. If you're only looking for the first <num>
             results, it would be wise to set the maxresults option to that amount so this functions
@@ -542,7 +542,7 @@ class LibrarySection(PlexObject):
         args = self._prepareSearchArgs(title=title, sort=sort, libtype=libtype, **kwargs)
         # iterate over the results
         results, subresults = [], '_init'
-        containerStart = 0
+        containerStart = max(0, startindex)
         containerSize = min(X_PLEX_CONTAINER_SIZE, maxresults)
         while subresults and maxresults > len(results):
             key = '/library/sections/%s/all%s' % (self.key, utils.joinArgs(args))
