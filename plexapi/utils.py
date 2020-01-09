@@ -78,7 +78,7 @@ def cast(func, value):
     return value
 
 
-def joinArgs(args):
+def joinArgs(args, leadingquestionmark=True):
     """ Returns a query string (uses for HTTP URLs) where only the value is URL encoded.
         Example return value: '?genre=action&type=1337'.
 
@@ -91,7 +91,7 @@ def joinArgs(args):
     for key in sorted(args, key=lambda x: x.lower()):
         value = compat.ustr(args[key])
         arglist.append('%s=%s' % (key, compat.quote(value)))
-    return '?%s' % '&'.join(arglist)
+    return '%s%s' % ('?' if leadingquestionmark else '', '&'.join(arglist))
 
 
 def lowerFirst(s):
