@@ -388,6 +388,39 @@ class LibrarySection(PlexObject):
         key = '/library/sections/%s/all?title=%s' % (self.key, title)
         return self.fetchItem(key, title__iexact=title)
 
+    def count(self, title=None, libtype=None, **kwargs):
+        """ Returns the total number of media from this library section
+            matching the given filters.
+
+            Parameters:
+                title (str): General string query to search for (optional).
+                libtype (str): Filter results to a spcifiec libtype (movie, show, episode, artist,
+                    album, track; optional).
+                **kwargs (dict): Any of the available filters for the current library section. Partial string
+                        matches allowed. Multiple matches OR together. Negative filtering also possible, just add an
+                        exclamation mark to the end of filter name, e.g. `resolution!=1x1`.
+
+                        * unwatched: Display or hide unwatched content (True, False). [all]
+                        * duplicate: Display or hide duplicate items (True, False). [movie]
+                        * actor: List of actors to search ([actor_or_id, ...]). [movie]
+                        * collection: List of collections to search within ([collection_or_id, ...]). [all]
+                        * contentRating: List of content ratings to search within ([rating_or_key, ...]). [movie,tv]
+                        * country: List of countries to search within ([country_or_key, ...]). [movie,music]
+                        * decade: List of decades to search within ([yyy0, ...]). [movie]
+                        * director: List of directors to search ([director_or_id, ...]). [movie]
+                        * genre: List Genres to search within ([genere_or_id, ...]). [all]
+                        * network: List of TV networks to search within ([resolution_or_key, ...]). [tv]
+                        * resolution: List of video resolutions to search within ([resolution_or_key, ...]). [movie]
+                        * studio: List of studios to search within ([studio_or_key, ...]). [music]
+                        * year: List of years to search within ([yyyy, ...]). [all]
+
+            Raises:
+                :class:`plexapi.exceptions.BadRequest`: when applying unknown filter
+        """
+        args = self._prepareSearchArgs(title=title, libtype=libtype, **kwargs)
+        key = '/library/sections/%s/all%s' % (self.key, utils.joinArgs(args))
+        return self.fetchItems(key, maxresults=0, **kwargs)[1]
+
     def all(self, sort=None, **kwargs):
         """ Returns a list of media from this library section.
 
