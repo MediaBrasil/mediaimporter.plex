@@ -303,7 +303,7 @@ class PlexServer(PlexObject):
         part = '/updater/check?download=%s' % (1 if download else 0)
         if force:
             self.query(part, method=self._session.put)
-        releases = self.fetchItems('/updater/status')
+        releases = self.fetchItems('/updater/status')[0]
         if len(releases):
             return releases[0]
 
@@ -350,7 +350,7 @@ class PlexServer(PlexObject):
         args['X-Plex-Container-Size'] = min(X_PLEX_CONTAINER_SIZE, maxresults)
         while subresults and maxresults > len(results):
             key = '/status/sessions/history/all%s' % utils.joinArgs(args)
-            subresults = self.fetchItems(key)
+            subresults = self.fetchItems(key)[0]
             results += subresults[:maxresults - len(results)]
             args['X-Plex-Container-Start'] += args['X-Plex-Container-Size']
         return results
@@ -359,7 +359,7 @@ class PlexServer(PlexObject):
         """ Returns a list of all :class:`~plexapi.playlist.Playlist` objects saved on the server. """
         # TODO: Add sort and type options?
         # /playlists/all?type=15&sort=titleSort%3Aasc&playlistType=video&smart=0
-        return self.fetchItems('/playlists')
+        return self.fetchItems('/playlists')[0]
 
     def playlist(self, title):
         """ Returns the :class:`~plexapi.client.Playlist` that matches the specified title.
@@ -415,13 +415,13 @@ class PlexServer(PlexObject):
         if limit:
             params['limit'] = limit
         key = '/hubs/search?%s' % urlencode(params)
-        for hub in self.fetchItems(key, Hub):
+        for hub in self.fetchItems(key, Hub)[0]:
             results += hub.items
         return results
 
     def sessions(self):
         """ Returns a list of all active session (currently playing) media objects. """
-        return self.fetchItems('/status/sessions')
+        return self.fetchItems('/status/sessions')[0]
 
     def startAlertListener(self, callback=None):
         """ Creates a websocket connection to the Plex Server to optionally recieve

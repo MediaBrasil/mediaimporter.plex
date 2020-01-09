@@ -124,7 +124,7 @@ class Video(PlexPartialObject):
     def posters(self):
         """ Returns list of available poster objects. :class:`~plexapi.media.Poster`:"""
 
-        return self.fetchItems('%s/posters' % self.key, cls=media.Poster)
+        return self.fetchItems('%s/posters' % self.key, cls=media.Poster)[0]
 
     def sync(self, videoQuality, client=None, clientId=None, limit=None, unwatched=False, title=None):
         """ Add current video (movie, tv-show, season or episode) as sync item for specified device.
@@ -362,7 +362,7 @@ class Show(Video):
     def seasons(self, **kwargs):
         """ Returns a list of :class:`~plexapi.video.Season` objects. """
         key = '/library/metadata/%s/children?excludeAllLeaves=1' % self.ratingKey
-        return self.fetchItems(key, **kwargs)
+        return self.fetchItems(key, **kwargs)[0]
 
     def season(self, title=None):
         """ Returns the season with the specified title or number.
@@ -378,7 +378,7 @@ class Show(Video):
     def episodes(self, **kwargs):
         """ Returns a list of :class:`~plexapi.video.Episode` objects. """
         key = '/library/metadata/%s/allLeaves' % self.ratingKey
-        return self.fetchItems(key, **kwargs)
+        return self.fetchItems(key, **kwargs)[0]
 
     def episode(self, title=None, season=None, episode=None):
         """ Find a episode using a title or season and episode.
@@ -483,7 +483,7 @@ class Season(Video):
     def episodes(self, **kwargs):
         """ Returns a list of :class:`~plexapi.video.Episode` objects. """
         key = '/library/metadata/%s/children' % self.ratingKey
-        return self.fetchItems(key, **kwargs)
+        return self.fetchItems(key, **kwargs)[0]
 
     def episode(self, title=None, episode=None):
         """ Returns the episode with the given title or number.

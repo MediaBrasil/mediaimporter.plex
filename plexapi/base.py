@@ -151,7 +151,12 @@ class PlexObject(object):
         if librarySectionID:
             for item in items:
                 item.librarySectionID = librarySectionID
-        return items
+        totalSize = data.attrib.get('totalSize')
+        if totalSize.isdigit():
+            totalSize = int(totalSize)
+        else:
+            totalSize = len(items)
+        return (items, totalSize)
 
     def findItems(self, data, cls=None, initpath=None, **kwargs):
         """ Load the specified data to find and build all items with the specified tag

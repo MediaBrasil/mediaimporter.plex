@@ -76,11 +76,11 @@ class Library(PlexObject):
 
     def onDeck(self):
         """ Returns a list of all media items on deck. """
-        return self.fetchItems('/library/onDeck')
+        return self.fetchItems('/library/onDeck')[0]
 
     def recentlyAdded(self):
         """ Returns a list of all media items recently added. """
-        return self.fetchItems('/library/recentlyAdded')
+        return self.fetchItems('/library/recentlyAdded')[0]
 
     def search(self, title=None, libtype=None, **kwargs):
         """ Searching within a library section is much more powerful. It seems certain
@@ -99,7 +99,7 @@ class Library(PlexObject):
         for attr, value in kwargs.items():
             args[attr] = value
         key = '/library/all%s' % utils.joinArgs(args)
-        return self.fetchItems(key)
+        return self.fetchItems(key)[0]
 
     def cleanBundles(self):
         """ Poster images and other metadata for items in your library are kept in "bundle"
@@ -399,12 +399,12 @@ class LibrarySection(PlexObject):
             sortStr = '?sort=' + sort
 
         key = '/library/sections/%s/all%s' % (self.key, sortStr)
-        return self.fetchItems(key, **kwargs)
+        return self.fetchItems(key, **kwargs)[0]
 
     def onDeck(self):
         """ Returns a list of media items on deck from this library section. """
         key = '/library/sections/%s/onDeck' % self.key
-        return self.fetchItems(key)
+        return self.fetchItems(key)[0]
 
     def recentlyAdded(self, maxresults=50):
         """ Returns a list of media items recently added from this library section.
@@ -473,7 +473,7 @@ class LibrarySection(PlexObject):
         if libtype is not None:
             args['type'] = utils.searchType(libtype)
         key = '/library/sections/%s/%s%s' % (self.key, category, utils.joinArgs(args))
-        return self.fetchItems(key, cls=FilterChoice)
+        return self.fetchItems(key, cls=FilterChoice)[0]
 
     def search(self, title=None, sort=None, maxresults=999999, libtype=None, **kwargs):
         """ Search the library. If there are many results, they will be fetched from the server
@@ -525,7 +525,7 @@ class LibrarySection(PlexObject):
         args['X-Plex-Container-Size'] = min(X_PLEX_CONTAINER_SIZE, maxresults)
         while subresults and maxresults > len(results):
             key = '/library/sections/%s/all%s' % (self.key, utils.joinArgs(args))
-            subresults = self.fetchItems(key)
+            subresults = self.fetchItems(key)[0]
             results += subresults[:maxresults - len(results)]
             args['X-Plex-Container-Start'] += args['X-Plex-Container-Size']
         return results
@@ -824,7 +824,7 @@ class MusicSection(LibrarySection):
     def albums(self):
         """ Returns a list of :class:`~plexapi.audio.Album` objects in this section. """
         key = '/library/sections/%s/albums' % self.key
-        return self.fetchItems(key)
+        return self.fetchItems(key)[0]
 
     def searchArtists(self, **kwargs):
         """ Search for an artist. See :func:`~plexapi.library.LibrarySection.search()` for usage. """
@@ -1018,7 +1018,7 @@ class Collections(PlexObject):
 
     @property
     def children(self):
-        return self.fetchItems(self.key)
+        return self.fetchItems(self.key)[0]
 
     def __len__(self):
         return self.childCount

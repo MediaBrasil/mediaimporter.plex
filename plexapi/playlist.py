@@ -73,7 +73,7 @@ class Playlist(PlexPartialObject, Playable):
         """ Returns a list of all items in the playlist. """
         if self._items is None:
             key = '%s/items' % self.key
-            items = self.fetchItems(key)
+            items = self.fetchItems(key)[0]
             self._items = items
         return self._items
 

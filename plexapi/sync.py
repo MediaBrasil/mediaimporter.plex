@@ -88,7 +88,7 @@ class SyncItem(PlexObject):
         """ Returns list of :class:`~plexapi.base.Playable` which belong to this sync item. """
         server = self.server().connect()
         key = '/sync/items/%s' % self.id
-        return server.fetchItems(key)
+        return server.fetchItems(key)[0]
 
     def markDownloaded(self, media):
         """ Mark the file as downloaded (by the nature of Plex it will be marked as downloaded within

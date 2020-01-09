@@ -392,7 +392,7 @@ class MediaTag(PlexObject):
         """
         if not self.key:
             raise BadRequest('Key is not defined for this tag: %s' % self.tag)
-        return self.fetchItems(self.key)
+        return self.fetchItems(self.key)[0]
 
 
 @utils.registerPlexObject
